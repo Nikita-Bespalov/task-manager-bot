@@ -10,7 +10,12 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://localhost:5173'],
+  origin: [
+    'http://localhost:5173', 
+    'https://localhost:5173',
+    'https://task-manager-frontend.onrender.com',
+    /\.onrender\.com$/  // Разрешить все поддомены onrender.com
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -38,53 +43,3 @@ app.listen(PORT, () => {
   console.log(`📡 API доступен на http://localhost:${PORT}`);
 });
 
-// Инициализация
-async function init() {
-  try {
-    console.log('Начало инициализации...');
-    console.log('Telegram ID:', telegramId);
-    console.log('API URL:', API_URL);
-    
-    // Получаем данные пользователя
-    console.log('Загружаем пользователя...');
-    const userResponse = await fetch(`${API_URL}/user/${telegramId}`);
-    
-    console.log('User response status:', userResponse.status);
-    
-    if (!userResponse.ok) {
-      throw new Error('Пользователь не найден');
-    }
-    
-    currentUser = await userResponse.json();
-    console.log('Пользователь загружен:', currentUser);
-    
-    // Обновляем UI
-    userName.textContent = currentUser.full_name || currentUser.username;
-    userRole.textContent = currentUser.role;
-    userRole.classList.add(currentUser.role);
-    
-    // Показываем кнопку создания задачи для админа
-    if (currentUser.role === 'admin') {
-      createTaskBtn.style.display = 'block';
-    }
-    
-    // Загружаем задачи
-    console.log('Загружаем задачи...');
-    await loadTasks();
-    console.log('Задачи загружены');
-    
-    // Если админ - загружаем список пользователей для формы
-    if (currentUser.role === 'admin') {
-      console.log('Загружаем список пользователей...');
-      await loadUsers();
-    }
-    
-    // Показываем главный экран
-    console.log('Показываем главный экран');
-    showScreen('main');
-    
-  } catch (error) {
-    console.error('Ошибка инициализации:', error);
-    tg.showAlert('Ошибка загрузки данных. Попробуйте позже.');
-  }
-}
