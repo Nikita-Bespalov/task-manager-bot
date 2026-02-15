@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 220 20% 97%;
+    --foreground: 220 25% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+
+    --primary: 211 85% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 94%;
+    --secondary-foreground: 220 25% 15%;
+
+    --muted: 220 15% 94%;
+    --muted-foreground: 220 10% 50%;
+
+    --accent: 220 15% 92%;
+    --accent-foreground: 220 25% 15%;
+
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 152 60% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 38 80% 15%;
+
+    --info: 211 85% 56%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 220 15% 90%;
+    --input: 220 15% 90%;
+    --ring: 211 85% 56%;
+
+    --radius: 1rem;
+
+    --glass-bg: 0 0% 100% / 0.65;
+    --glass-border: 0 0% 100% / 0.3;
+    --glass-shadow: 220 60% 50% / 0.08;
+
+    --gradient-primary: linear-gradient(135deg, hsl(211 85% 56%), hsl(230 80% 62%));
+    --gradient-surface: linear-gradient(135deg, hsl(0 0% 100% / 0.8), hsl(0 0% 100% / 0.4));
+    --gradient-bg: linear-gradient(160deg, hsl(220 30% 96%), hsl(230 25% 93%), hsl(220 20% 97%));
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 225 25% 8%;
+    --foreground: 220 15% 90%;
+
+    --card: 225 20% 12%;
+    --card-foreground: 220 15% 90%;
+
+    --popover: 225 20% 12%;
+    --popover-foreground: 220 15% 90%;
+
+    --primary: 211 85% 56%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 225 18% 16%;
+    --secondary-foreground: 220 15% 85%;
+
+    --muted: 225 18% 16%;
+    --muted-foreground: 220 10% 55%;
+
+    --accent: 225 18% 18%;
+    --accent-foreground: 220 15% 85%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --success: 152 55% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 85% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 225 15% 18%;
+    --input: 225 15% 18%;
+    --ring: 211 85% 56%;
+
+    --glass-bg: 225 25% 12% / 0.7;
+    --glass-border: 225 15% 25% / 0.4;
+    --glass-shadow: 225 60% 5% / 0.3;
+
+    --gradient-primary: linear-gradient(135deg, hsl(211 85% 50%), hsl(230 75% 55%));
+    --gradient-surface: linear-gradient(135deg, hsl(225 20% 14% / 0.8), hsl(225 20% 10% / 0.4));
+    --gradient-bg: linear-gradient(160deg, hsl(225 25% 8%), hsl(230 28% 10%), hsl(225 22% 7%));
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    background: var(--gradient-bg);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: 0 8px 32px hsl(var(--glass-shadow));
+  }
+
+  .glass-card {
+    @apply glass-panel rounded-2xl;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300;
+  }
+
+  .glass-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px hsl(var(--glass-shadow)), 0 0 0 1px hsl(var(--glass-border));
+  }
+
+  .glass-card-hover:active {
+    transform: scale(0.98);
+  }
+
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+
+  .btn-glass {
+    @apply glass-panel rounded-xl px-4 py-2 font-medium text-sm transition-all duration-200;
+  }
+
+  .btn-glass:hover {
+    background: hsl(var(--glass-bg));
+    box-shadow: 0 4px 16px hsl(var(--glass-shadow));
+  }
+}

@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+*/.env
+
+# Google credentials
+credentials.json
+*/credentials.json
+config/credentials.json
+*/config/credentials.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+*/dist/
+build/
+*/build/
+
+# IDE
+.vscode/
+.idea/
