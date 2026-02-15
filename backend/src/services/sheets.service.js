@@ -5,8 +5,10 @@ require('dotenv').config();
 class SheetsService {
   constructor() {
     const auth = new google.auth.GoogleAuth({
-      keyFile: path.join(__dirname, '../../config/credentials.json'),
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    credentials: process.env.GOOGLE_CREDENTIALS 
+        ? JSON.parse(process.env.GOOGLE_CREDENTIALS)
+        : require(path.join(__dirname, '../../config/credentials.json')),
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
     this.sheets = google.sheets({ version: 'v4', auth });
