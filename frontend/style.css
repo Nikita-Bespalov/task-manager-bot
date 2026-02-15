@@ -669,3 +669,8 @@ html, body {
 .screen.active {
   position: relative;
 }
+
+.create-task-btn,
+.team-filter-btn {
+  display: none; 
+}
