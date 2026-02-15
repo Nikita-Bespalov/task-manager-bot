@@ -4,16 +4,50 @@ require('dotenv').config();
 
 class SheetsService {
   constructor() {
+  let credentials;
+  
+    // Пробуем получить из переменной окружения
+    if (process.env.GOOGLE_CREDENTIALS) {
+        try {
+        credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+        console.log('✅ Credentials загружены из переменной окружения');
+        } catch (error) {
+        console.error('❌ Ошибка парсинга GOOGLE_CREDENTIALS:', error);
+        }
+    }
+    
+    // Пробуем получить из Secret File на Render
+    if (!credentials) {
+        try {
+        credentials = require('/etc/secrets/credentials.json');
+        console.log('✅ Credentials загружены из /etc/secrets/');
+        } catch (error) {
+        console.log('⚠️  Не найдено в /etc/secrets/');
+        }
+    }
+    
+    // Для локальной разработки - из файла
+    if (!credentials) {
+        try {
+        credentials = require(path.join(__dirname, '../../config/credentials.json'));
+        console.log('✅ Credentials загружены из локального файла');
+        } catch (error) {
+        console.error('❌ Ошибка загрузки credentials:', error);
+        }
+    }
+
+    if (!credentials) {
+        throw new Error('❌ CREDENTIALS НЕ НАЙДЕНЫ! Проверьте настройки.');
+    }
+
     const auth = new google.auth.GoogleAuth({
-    credentials: process.env.GOOGLE_CREDENTIALS 
-        ? JSON.parse(process.env.GOOGLE_CREDENTIALS)
-        : require(path.join(__dirname, '../../config/credentials.json')),
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        credentials: credentials,
+        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
 
     this.sheets = google.sheets({ version: 'v4', auth });
     this.spreadsheetId = process.env.SHEET_ID;
-  }
+    }
 
   // Получить все данные из листа
   async getSheetData(sheetName) {
