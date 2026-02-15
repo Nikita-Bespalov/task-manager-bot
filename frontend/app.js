@@ -2,7 +2,7 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// API URL - ВАЖНО: измените на ваш URL когда задеплоите backend
+// API URL
 const API_URL = 'https://task-manager-bot-cayt.onrender.com/api';
 
 // Глобальные переменные
@@ -25,7 +25,7 @@ const emptyState = document.getElementById('empty-state');
 const createTaskBtn = document.getElementById('create-task-btn');
 
 // Получить Telegram ID пользователя
-const telegramId = tg.initDataUnsafe?.user?.id || '7714999378'; // Для тестирования
+const telegramId = tg.initDataUnsafe?.user?.id || '7714999378';
 
 // Инициализация
 async function init() {
@@ -34,10 +34,7 @@ async function init() {
     console.log('Telegram ID:', telegramId);
     console.log('API URL:', API_URL);
     
-    // Получаем данные пользователя
-    console.log('Загружаем пользователя...');
     const userResponse = await fetch(`${API_URL}/user/${telegramId}`);
-    
     console.log('User response status:', userResponse.status);
     
     if (!userResponse.ok) {
@@ -47,28 +44,23 @@ async function init() {
     currentUser = await userResponse.json();
     console.log('Пользователь загружен:', currentUser);
     
-    // Обновляем UI
     userName.textContent = currentUser.full_name || currentUser.username;
     userRole.textContent = currentUser.role;
     userRole.classList.add(currentUser.role);
     
-    // Показываем кнопку создания задачи для админа
     if (currentUser.role === 'admin') {
       createTaskBtn.style.display = 'block';
     }
     
-    // Загружаем задачи
     console.log('Загружаем задачи...');
     await loadTasks();
     console.log('Задачи загружены');
     
-    // Если админ - загружаем список пользователей для формы
     if (currentUser.role === 'admin') {
       console.log('Загружаем список пользователей...');
       await loadUsers();
     }
     
-    // Показываем главный экран
     console.log('Показываем главный экран');
     showScreen('main');
     
@@ -83,7 +75,6 @@ async function loadTasks() {
   try {
     let url = `${API_URL}/tasks/${telegramId}`;
     
-    // Админ видит все задачи
     if (currentUser.role === 'admin') {
       url = `${API_URL}/tasks`;
     }
@@ -99,13 +90,12 @@ async function loadTasks() {
   }
 }
 
-// Загрузить пользователей (для админа)
+// Загрузить пользователей
 async function loadUsers() {
   try {
     const response = await fetch(`${API_URL}/users`);
     allUsers = await response.json();
     
-    // Заполняем select в форме
     const assigneeSelect = document.getElementById('task-assignee');
     assigneeSelect.innerHTML = '<option value="">Выберите исполнителя</option>';
     
@@ -124,38 +114,29 @@ async function loadUsers() {
 }
 
 // Отрисовать задачи
-// Отрисовать задачи
 function renderTasks() {
-  // Фильтруем задачи
   let filteredTasks = allTasks;
   
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   
   if (currentFilter === 'all') {
-    // В "Все" показываем только активные задачи (не completed и не cancelled)
     filteredTasks = allTasks.filter(task => 
       task.status !== 'completed' && task.status !== 'cancelled'
     );
   } else if (currentFilter === 'completed') {
-    // В "Готово" показываем только completed за последние 7 дней
     filteredTasks = allTasks.filter(task => {
       if (task.status !== 'completed') return false;
       
       const completedDate = task.completed_date ? new Date(task.completed_date) : null;
-      
-      // Если нет даты завершения - показываем (на всякий случай)
       if (!completedDate) return true;
       
-      // Показываем только если завершено в последние 7 дней
       return completedDate >= sevenDaysAgo;
     });
   } else {
-    // Для других фильтров (new, in_progress)
     filteredTasks = allTasks.filter(task => task.status === currentFilter);
   }
   
-  // Очищаем список
   tasksList.innerHTML = '';
   
   if (filteredTasks.length === 0) {
@@ -169,6 +150,7 @@ function renderTasks() {
     });
   }
 }
+
 // Создать карточку задачи
 function createTaskCard(task) {
   const card = document.createElement('div');
@@ -216,142 +198,84 @@ function createTaskCard(task) {
   return card;
 }
 
-// Обновить задачу
-async function updateTask(e) {
-  e.preventDefault();
+// Открыть детали задачи
+function openTaskDetail(task) {
+  selectedTask = task;
   
+  const statusText = {
+    'new': 'Новая',
+    'in_progress': 'В работе',
+    'completed': 'Выполнена',
+    'cancelled': 'Отменена'
+  };
+  
+  const priorityEmoji = {
+    'low': '🟢',
+    'medium': '🟡',
+    'high': '🔴'
+  };
+  
+  const priorityText = {
+    'low': 'Низкий',
+    'medium': 'Средний',
+    'high': 'Высокий'
+  };
+  
+  document.getElementById('detail-title').textContent = task.title;
+  document.getElementById('detail-status').textContent = statusText[task.status];
+  document.getElementById('detail-status').className = `status-badge ${task.status}`;
+  document.getElementById('detail-priority').textContent = `${priorityEmoji[task.priority]} ${priorityText[task.priority]}`;
+  document.getElementById('detail-deadline').textContent = task.deadline || 'Не указан';
+  document.getElementById('detail-created').textContent = task.created_date || 'Неизвестно';
+  document.getElementById('detail-description').textContent = task.description || 'Нет описания';
+  
+  const completeBtn = document.getElementById('complete-task-btn');
+  const editBtn = document.getElementById('edit-task-btn');
+  
+  if (currentUser && currentUser.role === 'admin') {
+    editBtn.style.display = 'block';
+  } else {
+    editBtn.style.display = 'none';
+  }
+  
+  if (task.status === 'completed' || task.status === 'cancelled') {
+    completeBtn.disabled = true;
+    completeBtn.textContent = '✅ Выполнена';
+  } else {
+    completeBtn.disabled = false;
+    completeBtn.textContent = '✅ Отметить выполненной';
+  }
+  
+  showScreen('detail');
+}
+
+// Открыть редактирование
+function openEditTask() {
   if (!selectedTask) return;
   
-  const title = document.getElementById('edit-task-title').value;
-  const description = document.getElementById('edit-task-description').value;
-  const assignedToId = document.getElementById('edit-task-assignee').value;
-  const priority = document.getElementById('edit-task-priority').value;
-  const status = document.getElementById('edit-task-status').value;
-  const deadline = document.getElementById('edit-task-deadline').value;
+  document.getElementById('edit-task-title').value = selectedTask.title;
+  document.getElementById('edit-task-description').value = selectedTask.description || '';
+  document.getElementById('edit-task-assignee').value = selectedTask.assigned_to_id;
+  document.getElementById('edit-task-priority').value = selectedTask.priority;
+  document.getElementById('edit-task-status').value = selectedTask.status;
+  document.getElementById('edit-task-deadline').value = selectedTask.deadline || '';
   
-  console.log('Обновляем задачу:', selectedTask.task_id);
-  
-  try {
-    // Получаем текущую задачу из Google Sheets
-    const allTasksResponse = await fetch(`${API_URL}/tasks`);
-    const allTasksData = await allTasksResponse.json();
-    const currentTask = allTasksData.find(t => t.task_id === selectedTask.task_id);
-    
-    if (!currentTask) {
-      throw new Error('Задача не найдена');
-    }
-    
-    // Обновляем через метод updateRow
-    const response = await fetch(`${API_URL}/tasks/${selectedTask.task_id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        rowIndex: currentTask.rowIndex,
-        title,
-        description,
-        assigned_to_id: assignedToId,
-        assigned_by_id: selectedTask.assigned_by_id,
-        status,
-        priority,
-        created_date: selectedTask.created_date,
-        deadline,
-        completed_date: status === 'completed' ? new Date().toISOString().split('T')[0] : selectedTask.completed_date,
-        comments: selectedTask.comments
-      })
+  const assigneeSelect = document.getElementById('edit-task-assignee');
+  if (assigneeSelect.options.length === 1) {
+    allUsers.forEach(user => {
+      if (user.active === 'TRUE') {
+        const option = document.createElement('option');
+        option.value = user.telegram_id;
+        option.textContent = `${user.full_name} (${user.role})`;
+        assigneeSelect.appendChild(option);
+      }
     });
-    
-    console.log('Response status:', response.status);
-    
-    if (!response.ok) {
-      throw new Error('Ошибка обновления задачи');
-    }
-    
-    const result = await response.json();
-    console.log('Задача обновлена:', result);
-    
-    alert('✅ Задача успешно обновлена!');
-    
-    // Перезагружаем задачи
-    await loadTasks();
-    
-    // Возвращаемся на главный экран
-    showScreen('main');
-    
-  } catch (error) {
-    console.error('Ошибка обновления задачи:', error);
-    alert('Ошибка при обновлении задачи');
+    assigneeSelect.value = selectedTask.assigned_to_id;
   }
+  
+  showScreen('edit');
 }
-// Обновить задачу
-async function updateTask(e) {
-  e.preventDefault();
-  
-  if (!selectedTask) return;
-  
-  const title = document.getElementById('edit-task-title').value;
-  const description = document.getElementById('edit-task-description').value;
-  const assignedToId = document.getElementById('edit-task-assignee').value;
-  const priority = document.getElementById('edit-task-priority').value;
-  const status = document.getElementById('edit-task-status').value;
-  const deadline = document.getElementById('edit-task-deadline').value;
-  
-  console.log('Обновляем задачу:', selectedTask.task_id);
-  
-  try {
-    // Получаем текущую задачу из Google Sheets
-    const allTasksResponse = await fetch(`${API_URL}/tasks`);
-    const allTasksData = await allTasksResponse.json();
-    const currentTask = allTasksData.find(t => t.task_id === selectedTask.task_id);
-    
-    if (!currentTask) {
-      throw new Error('Задача не найдена');
-    }
-    
-    // Обновляем через метод updateRow
-    const response = await fetch(`${API_URL}/tasks/${selectedTask.task_id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        rowIndex: currentTask.rowIndex,
-        title,
-        description,
-        assigned_to_id: assignedToId,
-        assigned_by_id: selectedTask.assigned_by_id,
-        status,
-        priority,
-        created_date: selectedTask.created_date,
-        deadline,
-        completed_date: status === 'completed' ? new Date().toISOString().split('T')[0] : selectedTask.completed_date,
-        comments: selectedTask.comments
-      })
-    });
-    
-    console.log('Response status:', response.status);
-    
-    if (!response.ok) {
-      throw new Error('Ошибка обновления задачи');
-    }
-    
-    const result = await response.json();
-    console.log('Задача обновлена:', result);
-    
-    alert('✅ Задача успешно обновлена!');
-    
-    // Перезагружаем задачи
-    await loadTasks();
-    
-    // Возвращаемся на главный экран
-    showScreen('main');
-    
-  } catch (error) {
-    console.error('Ошибка обновления задачи:', error);
-    alert('Ошибка при обновлении задачи');
-  }
-}
+
 // Создать задачу
 async function createTask(e) {
   e.preventDefault();
@@ -362,14 +286,10 @@ async function createTask(e) {
   const priority = document.getElementById('task-priority').value;
   const deadline = document.getElementById('task-deadline').value;
   
-  console.log('Создаем задачу...');
-  
   try {
     const response = await fetch(`${API_URL}/tasks`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title,
         description,
@@ -380,28 +300,11 @@ async function createTask(e) {
       })
     });
     
-    console.log('Response status:', response.status);
+    if (!response.ok) throw new Error('Ошибка создания задачи');
     
-    if (!response.ok) {
-      throw new Error('Ошибка создания задачи');
-    }
-    
-    const result = await response.json();
-    console.log('Задача создана:', result);
-    
-    // Показываем уведомление
     alert('✅ Задача успешно создана!');
-    
-    // Очищаем форму
     document.getElementById('task-form').reset();
-    
-    // Перезагружаем задачи
-    console.log('Перезагружаем список задач...');
     await loadTasks();
-    console.log('Задачи перезагружены');
-    
-    // Возвращаемся на главный экран
-    console.log('Возвращаемся на главный экран');
     showScreen('main');
     
   } catch (error) {
@@ -410,42 +313,71 @@ async function createTask(e) {
   }
 }
 
-// Отметить задачу выполненной
-async function completeTask() {
+// Обновить задачу
+async function updateTask(e) {
+  e.preventDefault();
+  
   if (!selectedTask) return;
   
-  console.log('Отмечаем задачу выполненной:', selectedTask.task_id);
+  const title = document.getElementById('edit-task-title').value;
+  const description = document.getElementById('edit-task-description').value;
+  const assignedToId = document.getElementById('edit-task-assignee').value;
+  const priority = document.getElementById('edit-task-priority').value;
+  const status = document.getElementById('edit-task-status').value;
+  const deadline = document.getElementById('edit-task-deadline').value;
+  
+  try {
+    const allTasksResponse = await fetch(`${API_URL}/tasks`);
+    const allTasksData = await allTasksResponse.json();
+    const currentTask = allTasksData.find(t => t.task_id === selectedTask.task_id);
+    
+    if (!currentTask) throw new Error('Задача не найдена');
+    
+    const response = await fetch(`${API_URL}/tasks/${selectedTask.task_id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rowIndex: currentTask.rowIndex,
+        title,
+        description,
+        assigned_to_id: assignedToId,
+        assigned_by_id: selectedTask.assigned_by_id,
+        status,
+        priority,
+        created_date: selectedTask.created_date,
+        deadline,
+        completed_date: status === 'completed' ? new Date().toISOString().split('T')[0] : selectedTask.completed_date,
+        comments: selectedTask.comments
+      })
+    });
+    
+    if (!response.ok) throw new Error('Ошибка обновления задачи');
+    
+    alert('✅ Задача успешно обновлена!');
+    await loadTasks();
+    showScreen('main');
+    
+  } catch (error) {
+    console.error('Ошибка обновления задачи:', error);
+    alert('Ошибка при обновлении задачи');
+  }
+}
+
+// Отметить выполненной
+async function completeTask() {
+  if (!selectedTask) return;
   
   try {
     const response = await fetch(`${API_URL}/tasks/${selectedTask.task_id}/status`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        status: 'completed'
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'completed' })
     });
     
-    console.log('Response status:', response.status);
+    if (!response.ok) throw new Error('Ошибка обновления статуса');
     
-    if (!response.ok) {
-      throw new Error('Ошибка обновления статуса');
-    }
-    
-    const result = await response.json();
-    console.log('Статус обновлен:', result);
-    
-    // Показываем уведомление
     alert('✅ Задача отмечена как выполненная!');
-    
-    // Перезагружаем задачи
-    console.log('Перезагружаем список задач...');
     await loadTasks();
-    console.log('Задачи перезагружены');
-    
-    // Возвращаемся на главный экран
-    console.log('Возвращаемся на главный экран');
     showScreen('main');
     
   } catch (error) {
@@ -463,27 +395,15 @@ function showScreen(screenName) {
   editTaskScreen.classList.remove('active');
   
   switch(screenName) {
-    case 'loading':
-      loadingScreen.classList.add('active');
-      break;
-    case 'main':
-      mainScreen.classList.add('active');
-      break;
-    case 'create':
-      createTaskScreen.classList.add('active');
-      break;
-    case 'detail':
-      taskDetailScreen.classList.add('active');
-      break;
-    case 'edit':
-      editTaskScreen.classList.add('active');
-      break;
+    case 'loading': loadingScreen.classList.add('active'); break;
+    case 'main': mainScreen.classList.add('active'); break;
+    case 'create': createTaskScreen.classList.add('active'); break;
+    case 'detail': taskDetailScreen.classList.add('active'); break;
+    case 'edit': editTaskScreen.classList.add('active'); break;
   }
 }
 
 // Обработчики событий
-
-// Фильтры
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', (e) => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -493,34 +413,14 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
   });
 });
 
-// Кнопка создания задачи
-createTaskBtn.addEventListener('click', () => {
-  showScreen('create');
-});
-
-// Кнопка назад
-document.getElementById('back-btn').addEventListener('click', () => {
-  showScreen('main');
-});
-
-document.getElementById('detail-back-btn').addEventListener('click', () => {
-  showScreen('main');
-});
-
-// Форма создания задачи
+createTaskBtn.addEventListener('click', () => showScreen('create'));
+document.getElementById('back-btn').addEventListener('click', () => showScreen('main'));
+document.getElementById('detail-back-btn').addEventListener('click', () => showScreen('main'));
+document.getElementById('edit-back-btn').addEventListener('click', () => showScreen('detail'));
 document.getElementById('task-form').addEventListener('submit', createTask);
-
-// Кнопка завершения задачи
+document.getElementById('edit-task-form').addEventListener('submit', updateTask);
 document.getElementById('complete-task-btn').addEventListener('click', completeTask);
-// Кнопка редактирования задачи
 document.getElementById('edit-task-btn').addEventListener('click', openEditTask);
 
-// Кнопка назад с экрана редактирования
-document.getElementById('edit-back-btn').addEventListener('click', () => {
-  showScreen('detail');
-});
-
-// Форма редактирования задачи
-document.getElementById('edit-task-form').addEventListener('submit', updateTask);
-// Запуск приложения
+// Запуск
 init();
