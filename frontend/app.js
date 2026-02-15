@@ -3,7 +3,7 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 // API URL - ВАЖНО: измените на ваш URL когда задеплоите backend
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://task-manager-bot-cayt.onrender.com/api';
 
 // Глобальные переменные
 let currentUser = null;
