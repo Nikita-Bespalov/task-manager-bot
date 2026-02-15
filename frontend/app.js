@@ -443,7 +443,6 @@ async function takeInProgress(taskId) {
 // Сделать функцию глобальной для onclick
 window.takeInProgress = takeInProgress;
 // Переключение экранов
-// Переключение экранов
 function showScreen(screenName) {
   loadingScreen.classList.remove('active');
   mainScreen.classList.remove('active');
@@ -451,6 +450,9 @@ function showScreen(screenName) {
   taskDetailScreen.classList.remove('active');
   editTaskScreen.classList.remove('active');
   teamScreen.classList.remove('active');
+  
+  // Сначала скроллим в самое начало
+  window.scrollTo(0, 0);
   
   switch(screenName) {
     case 'loading': loadingScreen.classList.add('active'); break;
@@ -461,8 +463,8 @@ function showScreen(screenName) {
     case 'team': teamScreen.classList.add('active'); break;
   }
   
-  // ДОБАВЬТЕ ЭТУ СТРОКУ - всегда сбрасываем скролл при смене экрана
-  setTimeout(() => window.scrollTo(0, 0), 0);
+  // Повторяем для надежности после рендера
+  setTimeout(() => window.scrollTo(0, 0), 10);
 }
 // Показать экран команды
 async function showTeamScreen() {
