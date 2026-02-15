@@ -17,7 +17,7 @@ const loadingScreen = document.getElementById('loading-screen');
 const mainScreen = document.getElementById('main-screen');
 const createTaskScreen = document.getElementById('create-task-screen');
 const taskDetailScreen = document.getElementById('task-detail-screen');
-
+const editTaskScreen = document.getElementById('edit-task-screen');
 const userName = document.getElementById('user-name');
 const userRole = document.getElementById('user-role');
 const tasksList = document.getElementById('tasks-list');
@@ -124,11 +124,34 @@ async function loadUsers() {
 }
 
 // Отрисовать задачи
+// Отрисовать задачи
 function renderTasks() {
   // Фильтруем задачи
   let filteredTasks = allTasks;
   
-  if (currentFilter !== 'all') {
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  
+  if (currentFilter === 'all') {
+    // В "Все" показываем только активные задачи (не completed и не cancelled)
+    filteredTasks = allTasks.filter(task => 
+      task.status !== 'completed' && task.status !== 'cancelled'
+    );
+  } else if (currentFilter === 'completed') {
+    // В "Готово" показываем только completed за последние 7 дней
+    filteredTasks = allTasks.filter(task => {
+      if (task.status !== 'completed') return false;
+      
+      const completedDate = task.completed_date ? new Date(task.completed_date) : null;
+      
+      // Если нет даты завершения - показываем (на всякий случай)
+      if (!completedDate) return true;
+      
+      // Показываем только если завершено в последние 7 дней
+      return completedDate >= sevenDaysAgo;
+    });
+  } else {
+    // Для других фильтров (new, in_progress)
     filteredTasks = allTasks.filter(task => task.status === currentFilter);
   }
   
@@ -146,7 +169,6 @@ function renderTasks() {
     });
   }
 }
-
 // Создать карточку задачи
 function createTaskCard(task) {
   const card = document.createElement('div');
@@ -194,50 +216,142 @@ function createTaskCard(task) {
   return card;
 }
 
-// Открыть детали задачи
-function openTaskDetail(task) {
-  selectedTask = task;
+// Обновить задачу
+async function updateTask(e) {
+  e.preventDefault();
   
-  const statusText = {
-    'new': 'Новая',
-    'in_progress': 'В работе',
-    'completed': 'Выполнена',
-    'cancelled': 'Отменена'
-  };
+  if (!selectedTask) return;
   
-  const priorityEmoji = {
-    'low': '🟢',
-    'medium': '🟡',
-    'high': '🔴'
-  };
+  const title = document.getElementById('edit-task-title').value;
+  const description = document.getElementById('edit-task-description').value;
+  const assignedToId = document.getElementById('edit-task-assignee').value;
+  const priority = document.getElementById('edit-task-priority').value;
+  const status = document.getElementById('edit-task-status').value;
+  const deadline = document.getElementById('edit-task-deadline').value;
   
-  const priorityText = {
-    'low': 'Низкий',
-    'medium': 'Средний',
-    'high': 'Высокий'
-  };
+  console.log('Обновляем задачу:', selectedTask.task_id);
   
-  document.getElementById('detail-title').textContent = task.title;
-  document.getElementById('detail-status').textContent = statusText[task.status];
-  document.getElementById('detail-status').className = `status-badge ${task.status}`;
-  document.getElementById('detail-priority').textContent = `${priorityEmoji[task.priority]} ${priorityText[task.priority]}`;
-  document.getElementById('detail-deadline').textContent = task.deadline || 'Не указан';
-  document.getElementById('detail-created').textContent = task.created_date || 'Неизвестно';
-  document.getElementById('detail-description').textContent = task.description || 'Нет описания';
-  
-  const completeBtn = document.getElementById('complete-task-btn');
-  
-  if (task.status === 'completed' || task.status === 'cancelled') {
-    completeBtn.disabled = true;
-    completeBtn.textContent = '✅ Выполнена';
-  } else {
-    completeBtn.disabled = false;
-    completeBtn.textContent = '✅ Отметить выполненной';
+  try {
+    // Получаем текущую задачу из Google Sheets
+    const allTasksResponse = await fetch(`${API_URL}/tasks`);
+    const allTasksData = await allTasksResponse.json();
+    const currentTask = allTasksData.find(t => t.task_id === selectedTask.task_id);
+    
+    if (!currentTask) {
+      throw new Error('Задача не найдена');
+    }
+    
+    // Обновляем через метод updateRow
+    const response = await fetch(`${API_URL}/tasks/${selectedTask.task_id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        rowIndex: currentTask.rowIndex,
+        title,
+        description,
+        assigned_to_id: assignedToId,
+        assigned_by_id: selectedTask.assigned_by_id,
+        status,
+        priority,
+        created_date: selectedTask.created_date,
+        deadline,
+        completed_date: status === 'completed' ? new Date().toISOString().split('T')[0] : selectedTask.completed_date,
+        comments: selectedTask.comments
+      })
+    });
+    
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error('Ошибка обновления задачи');
+    }
+    
+    const result = await response.json();
+    console.log('Задача обновлена:', result);
+    
+    alert('✅ Задача успешно обновлена!');
+    
+    // Перезагружаем задачи
+    await loadTasks();
+    
+    // Возвращаемся на главный экран
+    showScreen('main');
+    
+  } catch (error) {
+    console.error('Ошибка обновления задачи:', error);
+    alert('Ошибка при обновлении задачи');
   }
-  
-  showScreen('detail');
 }
-
+// Обновить задачу
+async function updateTask(e) {
+  e.preventDefault();
+  
+  if (!selectedTask) return;
+  
+  const title = document.getElementById('edit-task-title').value;
+  const description = document.getElementById('edit-task-description').value;
+  const assignedToId = document.getElementById('edit-task-assignee').value;
+  const priority = document.getElementById('edit-task-priority').value;
+  const status = document.getElementById('edit-task-status').value;
+  const deadline = document.getElementById('edit-task-deadline').value;
+  
+  console.log('Обновляем задачу:', selectedTask.task_id);
+  
+  try {
+    // Получаем текущую задачу из Google Sheets
+    const allTasksResponse = await fetch(`${API_URL}/tasks`);
+    const allTasksData = await allTasksResponse.json();
+    const currentTask = allTasksData.find(t => t.task_id === selectedTask.task_id);
+    
+    if (!currentTask) {
+      throw new Error('Задача не найдена');
+    }
+    
+    // Обновляем через метод updateRow
+    const response = await fetch(`${API_URL}/tasks/${selectedTask.task_id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        rowIndex: currentTask.rowIndex,
+        title,
+        description,
+        assigned_to_id: assignedToId,
+        assigned_by_id: selectedTask.assigned_by_id,
+        status,
+        priority,
+        created_date: selectedTask.created_date,
+        deadline,
+        completed_date: status === 'completed' ? new Date().toISOString().split('T')[0] : selectedTask.completed_date,
+        comments: selectedTask.comments
+      })
+    });
+    
+    console.log('Response status:', response.status);
+    
+    if (!response.ok) {
+      throw new Error('Ошибка обновления задачи');
+    }
+    
+    const result = await response.json();
+    console.log('Задача обновлена:', result);
+    
+    alert('✅ Задача успешно обновлена!');
+    
+    // Перезагружаем задачи
+    await loadTasks();
+    
+    // Возвращаемся на главный экран
+    showScreen('main');
+    
+  } catch (error) {
+    console.error('Ошибка обновления задачи:', error);
+    alert('Ошибка при обновлении задачи');
+  }
+}
 // Создать задачу
 async function createTask(e) {
   e.preventDefault();
@@ -346,6 +460,7 @@ function showScreen(screenName) {
   mainScreen.classList.remove('active');
   createTaskScreen.classList.remove('active');
   taskDetailScreen.classList.remove('active');
+  editTaskScreen.classList.remove('active');
   
   switch(screenName) {
     case 'loading':
@@ -359,6 +474,9 @@ function showScreen(screenName) {
       break;
     case 'detail':
       taskDetailScreen.classList.add('active');
+      break;
+    case 'edit':
+      editTaskScreen.classList.add('active');
       break;
   }
 }
@@ -394,6 +512,15 @@ document.getElementById('task-form').addEventListener('submit', createTask);
 
 // Кнопка завершения задачи
 document.getElementById('complete-task-btn').addEventListener('click', completeTask);
+// Кнопка редактирования задачи
+document.getElementById('edit-task-btn').addEventListener('click', openEditTask);
 
+// Кнопка назад с экрана редактирования
+document.getElementById('edit-back-btn').addEventListener('click', () => {
+  showScreen('detail');
+});
+
+// Форма редактирования задачи
+document.getElementById('edit-task-form').addEventListener('submit', updateTask);
 // Запуск приложения
 init();

@@ -444,3 +444,96 @@ body {
   background: var(--tg-theme-bg-color, #ffffff);
   z-index: 9999;
 }
+
+/* ==================== ТЕМНАЯ ТЕМА ==================== */
+
+/* Автоматическая адаптация под тему Telegram */
+body {
+  background: var(--tg-theme-bg-color, #ffffff);
+  color: var(--tg-theme-text-color, #000000);
+}
+
+/* Хедер */
+.header {
+  background: var(--tg-theme-secondary-bg-color, #f4f4f5);
+  border-bottom-color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
+}
+
+/* Карточки задач */
+.task-card {
+  background: var(--tg-theme-secondary-bg-color, #f4f4f5);
+  border-color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.05));
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.task-card-description {
+  color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.7));
+}
+
+.task-card-meta {
+  color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.6));
+}
+
+/* Фильтры */
+.filter-btn {
+  color: var(--tg-theme-text-color, #000000);
+  border-color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.2));
+  background: var(--tg-theme-bg-color, transparent);
+}
+
+.filter-btn.active {
+  background: var(--tg-theme-button-color, #3390ec);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  border-color: var(--tg-theme-button-color, #3390ec);
+}
+
+/* Формы */
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: var(--tg-theme-bg-color, #ffffff);
+  color: var(--tg-theme-text-color, #000000);
+  border-color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.2));
+}
+
+.form-group label {
+  color: var(--tg-theme-text-color, #000000);
+}
+
+/* Детали задачи */
+.task-detail-info {
+  background: var(--tg-theme-secondary-bg-color, #f4f4f5);
+}
+
+.info-row {
+  border-bottom-color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.05));
+}
+
+.info-label {
+  color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.6));
+}
+
+.task-detail-description p {
+  color: var(--tg-theme-text-color, rgba(0, 0, 0, 0.8));
+}
+
+/* Пустое состояние */
+.empty-state {
+  color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.4));
+}
+
+/* Кнопка назад */
+.back-btn {
+  color: var(--tg-theme-link-color, #3390ec);
+}
+
+/* Loading screen */
+#loading-screen {
+  background: var(--tg-theme-bg-color, #ffffff);
+  color: var(--tg-theme-text-color, #000000);
+}
+
+.loader {
+  border-color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
+  border-top-color: var(--tg-theme-button-color, #3390ec);
+}

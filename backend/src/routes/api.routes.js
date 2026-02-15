@@ -84,5 +84,35 @@ router.patch('/tasks/:taskId/status', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+// Обновить задачу (только для админа)
+router.put('/tasks/:taskId', async (req, res) => {
+  try {
+    const { rowIndex, title, description, assigned_to_id, assigned_by_id, status, priority, created_date, deadline, completed_date, comments } = req.body;
+    
+    if (!rowIndex || !title || !assigned_to_id) {
+      return res.status(400).json({ error: 'Недостаточно данных' });
+    }
 
+    const values = [
+      req.params.taskId,
+      title,
+      description || '',
+      String(assigned_to_id),
+      String(assigned_by_id),
+      status,
+      priority,
+      created_date,
+      deadline || '',
+      completed_date || '',
+      comments || ''
+    ];
+
+    const result = await sheetsService.updateRow('Tasks', rowIndex, values);
+    
+    res.json({ success: true, result });
+  } catch (error) {
+    console.error('Ошибка обновления задачи:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 module.exports = router;

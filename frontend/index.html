@@ -127,12 +127,65 @@
           <p id="detail-description"></p>
         </div>
 
-        <div class="task-actions">
+       <div class="task-actions">
+          <button id="edit-task-btn" class="btn-primary" style="display: none; margin-bottom: 12px;">✏️ Редактировать</button>
           <button id="complete-task-btn" class="btn-success">✅ Отметить выполненной</button>
         </div>
       </div>
     </div>
   </div>
+<!-- Экран редактирования задачи -->
+    <div id="edit-task-screen" class="screen">
+      <header class="header">
+        <button id="edit-back-btn" class="back-btn">← Назад</button>
+        <h2>Редактировать задачу</h2>
+      </header>
+
+      <form id="edit-task-form" class="task-form">
+        <div class="form-group">
+          <label>Название задачи *</label>
+          <input type="text" id="edit-task-title" placeholder="Введите название" required>
+        </div>
+
+        <div class="form-group">
+          <label>Описание</label>
+          <textarea id="edit-task-description" placeholder="Опишите задачу" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Исполнитель *</label>
+          <select id="edit-task-assignee" required>
+            <option value="">Выберите исполнителя</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Приоритет</label>
+          <select id="edit-task-priority">
+            <option value="low">🟢 Низкий</option>
+            <option value="medium">🟡 Средний</option>
+            <option value="high">🔴 Высокий</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Статус</label>
+          <select id="edit-task-status">
+            <option value="new">🆕 Новая</option>
+            <option value="in_progress">🔄 В работе</option>
+            <option value="completed">✅ Выполнена</option>
+            <option value="cancelled">❌ Отменена</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Дедлайн</label>
+          <input type="date" id="edit-task-deadline">
+        </div>
+
+        <button type="submit" class="btn-primary">Сохранить изменения</button>
+      </form>
+    </div>
 
   <script type="module" src="app.js"></script>
 </body>
