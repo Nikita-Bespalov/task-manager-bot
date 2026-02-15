@@ -29,7 +29,7 @@ const emptyState = document.getElementById('empty-state');
 const createTaskBtn = document.getElementById('create-task-btn');
 
 // Получить Telegram ID пользователя
-const telegramId = tg.initDataUnsafe?.user?.id || '7714999378';
+const telegramId = tg.initDataUnsafe?.user?.id;
 
 // Инициализация
 async function init() {
