@@ -300,8 +300,11 @@ body {
 }
 
 /* Форма создания задачи */
+/* Форма создания и редактирования задачи */
 .task-form {
   padding: 16px;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
 }
 
 .form-group {
@@ -536,4 +539,27 @@ body {
 .loader {
   border-color: var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
   border-top-color: var(--tg-theme-button-color, #3390ec);
+}
+/* Кнопка "Взять в работу" */
+.task-card-actions {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--tg-theme-hint-color, rgba(0, 0, 0, 0.1));
+}
+
+.btn-take-progress {
+  width: 100%;
+  padding: 10px;
+  background: var(--tg-theme-button-color, #3390ec);
+  color: var(--tg-theme-button-text-color, #ffffff);
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-take-progress:active {
+  opacity: 0.8;
 }
