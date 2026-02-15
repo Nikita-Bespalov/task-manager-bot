@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Экран загрузки -->
+    <div id="loading-screen" class="screen active">
+      <div class="loader"></div>
+      <p>Загрузка...</p>
+    </div>
+
+    <!-- Главный экран -->
+    <div id="main-screen" class="screen">
+      <!-- Хедер -->
+      <header class="header">
+        <div class="user-info">
+          <div class="avatar">👤</div>
+          <div>
+            <h2 id="user-name">Пользователь</h2>
+            <span id="user-role" class="badge">employee</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Фильтры -->
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">Все</button>
+        <button class="filter-btn" data-filter="new">Новые</button>
+        <button class="filter-btn" data-filter="in_progress">В работе</button>
+        <button class="filter-btn" data-filter="completed">Готово</button>
+      </div>
+
+      <!-- Список задач -->
+      <div class="tasks-container">
+        <div id="tasks-list"></div>
+        <div id="empty-state" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <p>У вас пока нет задач</p>
+        </div>
+      </div>
+
+      <!-- Кнопка создания задачи (только для админа) -->
+      <button id="create-task-btn" class="fab" style="display: none;">
+        ➕
+      </button>
+    </div>
+
+    <!-- Экран создания задачи -->
+    <div id="create-task-screen" class="screen">
+      <header class="header">
+        <button id="back-btn" class="back-btn">← Назад</button>
+        <h2>Новая задача</h2>
+      </header>
+
+      <form id="task-form" class="task-form">
+        <div class="form-group">
+          <label>Название задачи *</label>
+          <input type="text" id="task-title" placeholder="Введите название" required>
+        </div>
+
+        <div class="form-group">
+          <label>Описание</label>
+          <textarea id="task-description" placeholder="Опишите задачу" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Исполнитель *</label>
+          <select id="task-assignee" required>
+            <option value="">Выберите исполнителя</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Приоритет</label>
+          <select id="task-priority">
+            <option value="low">🟢 Низкий</option>
+            <option value="medium" selected>🟡 Средний</option>
+            <option value="high">🔴 Высокий</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Дедлайн</label>
+          <input type="date" id="task-deadline">
+        </div>
+
+        <button type="submit" class="btn-primary">Создать задачу</button>
+      </form>
+    </div>
+
+    <!-- Экран просмотра задачи -->
+    <div id="task-detail-screen" class="screen">
+      <header class="header">
+        <button id="detail-back-btn" class="back-btn">← Назад</button>
+        <h2>Детали задачи</h2>
+      </header>
+
+      <div class="task-detail">
+        <div class="task-detail-header">
+          <h3 id="detail-title"></h3>
+          <span id="detail-status" class="status-badge"></span>
+        </div>
+
+        <div class="task-detail-info">
+          <div class="info-row">
+            <span class="info-label">Приоритет:</span>
+            <span id="detail-priority"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Дедлайн:</span>
+            <span id="detail-deadline"></span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Создана:</span>
+            <span id="detail-created"></span>
+          </div>
+        </div>
+
+        <div class="task-detail-description">
+          <h4>Описание:</h4>
+          <p id="detail-description"></p>
+        </div>
+
+        <div class="task-actions">
+          <button id="complete-task-btn" class="btn-success">✅ Отметить выполненной</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
