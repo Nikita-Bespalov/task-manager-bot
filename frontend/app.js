@@ -306,6 +306,9 @@ function openEditTask() {
   }
   
   showScreen('edit');
+  
+  // ДОБАВЬТЕ ЭТУ СТРОКУ - сбрасываем скролл в начало
+  window.scrollTo(0, 0);
 }
 
 // Создать задачу
@@ -440,6 +443,7 @@ async function takeInProgress(taskId) {
 // Сделать функцию глобальной для onclick
 window.takeInProgress = takeInProgress;
 // Переключение экранов
+// Переключение экранов
 function showScreen(screenName) {
   loadingScreen.classList.remove('active');
   mainScreen.classList.remove('active');
@@ -447,7 +451,8 @@ function showScreen(screenName) {
   taskDetailScreen.classList.remove('active');
   editTaskScreen.classList.remove('active');
   teamScreen.classList.remove('active');
-switch(screenName) {
+  
+  switch(screenName) {
     case 'loading': loadingScreen.classList.add('active'); break;
     case 'main': mainScreen.classList.add('active'); break;
     case 'create': createTaskScreen.classList.add('active'); break;
@@ -456,13 +461,8 @@ switch(screenName) {
     case 'team': teamScreen.classList.add('active'); break;
   }
   
-  switch(screenName) {
-    case 'loading': loadingScreen.classList.add('active'); break;
-    case 'main': mainScreen.classList.add('active'); break;
-    case 'create': createTaskScreen.classList.add('active'); break;
-    case 'detail': taskDetailScreen.classList.add('active'); break;
-    case 'edit': editTaskScreen.classList.add('active'); break;
-  }
+  // ДОБАВЬТЕ ЭТУ СТРОКУ - всегда сбрасываем скролл при смене экрана
+  setTimeout(() => window.scrollTo(0, 0), 0);
 }
 // Показать экран команды
 async function showTeamScreen() {
