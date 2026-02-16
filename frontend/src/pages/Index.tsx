@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Plus } from 'lucide-react';
 import { fetchUser, fetchTasks, fetchAllUsers, updateTaskStatus } from '@/lib/api';
+import { getTelegramId } from '@/lib/telegram';
 import { Task, User, TaskFilter } from '@/lib/types';
 import AppHeader from '@/components/AppHeader';
 import TaskFilters from '@/components/TaskFilters';
@@ -10,16 +11,6 @@ import TaskCard from '@/components/TaskCard';
 import EmptyState from '@/components/EmptyState';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
-
-declare global {
-  interface Window {
-    Telegram?: { WebApp: any };
-  }
-}
-
-const getTelegramId = (): string => {
-  return window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '7714999378';
-};
 
 const Index = () => {
   const navigate = useNavigate();
@@ -31,6 +22,7 @@ const Index = () => {
 
   const loadTasks = useCallback(async (currentUser: User) => {
     try {
+      if (!telegramId) return;
       const data = await fetchTasks(telegramId, currentUser.role === 'admin');
       setTasks(data);
     } catch (err) {
@@ -44,6 +36,10 @@ const Index = () => {
         // Expand Telegram WebApp if available
         window.Telegram?.WebApp?.expand();
         
+        if (!telegramId) {
+          throw new Error('Telegram ID не найден. Откройте приложение в Telegram или задайте VITE_DEV_TELEGRAM_ID.');
+        }
+
         const userData = await fetchUser(telegramId);
         setUser(userData);
         await loadTasks(userData);
@@ -114,7 +110,7 @@ const Index = () => {
                 key={task.task_id}
                 task={task}
                 index={i}
-                telegramId={telegramId}
+                telegramId={telegramId || ''}
                 onClick={(t) => navigate(`/task/${t.task_id}`, { state: { task: t, user } })}
                 onTakeInProgress={handleTakeInProgress}
               />
