@@ -12,6 +12,16 @@ import EmptyState from '@/components/EmptyState';
 import LoadingScreen from '@/components/LoadingScreen';
 import { toast } from 'sonner';
 
+declare global {
+  interface Window {
+    Telegram?: { WebApp: any };
+  }
+}
+
+const getTelegramId = (): string => {
+  return window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
+};
+
 const Index = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
