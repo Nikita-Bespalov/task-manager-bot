@@ -3,22 +3,24 @@ const cors = require('cors');
 require('dotenv').config();
 
 const apiRoutes = require('./routes/api.routes');
+const telegramService = require('./services/telegram.service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:3001',
   'http://localhost:8080',
-  'https://localhost:8080',
-  'https://task-manager-frontend.onrender.com',
+  'https://task-manager-frontend-1rbo.onrender.com',
   /\.onrender\.com$/
 ];
 
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
+    // Разрешаем запросы без origin (например, мобильные приложения, Postman)
     if (!origin) {
       return callback(null, true);
     }
@@ -33,10 +35,12 @@ app.use(cors({
       return callback(null, true);
     }
 
+    console.log(`❌ CORS blocked for origin: ${origin}`);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
   credentials: true
 }));
+
 app.use(express.json());
 
 // Routes
