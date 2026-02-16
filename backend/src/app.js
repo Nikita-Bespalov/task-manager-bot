@@ -3,19 +3,38 @@ const cors = require('cors');
 require('dotenv').config();
 
 const apiRoutes = require('./routes/api.routes');
-const telegramService = require('./services/telegram.service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://localhost:5173',
+  'http://localhost:8080',
+  'https://localhost:8080',
+  'https://task-manager-frontend.onrender.com',
+  /\.onrender\.com$/
+];
+
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:5173', 
-    'https://localhost:5173',
-    'https://task-manager-frontend.onrender.com',
-    /\.onrender\.com$/  // Разрешить все поддомены onrender.com
-  ],
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const isAllowed = allowedOrigins.some((allowedOrigin) => (
+      allowedOrigin instanceof RegExp
+        ? allowedOrigin.test(origin)
+        : allowedOrigin === origin
+    ));
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true
 }));
 app.use(express.json());
@@ -42,4 +61,3 @@ app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
   console.log(`📡 API доступен на http://localhost:${PORT}`);
 });
-
