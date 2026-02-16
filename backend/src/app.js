@@ -3,13 +3,16 @@ const cors = require('cors');
 require('dotenv').config();
 
 const apiRoutes = require('./routes/api.routes');
-const telegramService = require('./services/telegram.service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
   'http://localhost:5173',
+  'https://localhost:5173',
+  'http://localhost:8080',
+  'https://localhost:8080',
+  'https://task-manager-frontend.onrender.com',
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:8080',
@@ -64,4 +67,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
   console.log(`📡 API доступен на http://localhost:${PORT}`);
+});
 });

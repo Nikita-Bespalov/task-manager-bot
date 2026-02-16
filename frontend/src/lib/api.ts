@@ -1,5 +1,18 @@
 import { Task, User } from './types';
 
+const resolveApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  if (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname)) {
+    return 'http://localhost:3000/api';
+  }
+
+  return 'https://task-manager-bot-cayt.onrender.com/api';
+};
+
+const API_URL = resolveApiUrl();
 // Hardcoded for production debugging
 const API_URL = 'https://task-manager-bot-cayt.onrender.com/api';
 
