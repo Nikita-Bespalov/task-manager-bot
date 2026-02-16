@@ -1,6 +1,7 @@
 import { Task, User } from './types';
 
-export const API_URL = import.meta.env.VITE_API_URL || 'https://task-manager-bot-cayt.onrender.com/api';
+export const API_URL = 'https://task-manager-bot-cayt.onrender.com/api';
+console.log('🔗 API URL:', API_URL); // для отладки
 
 export async function fetchUser(telegramId: string): Promise<User> {
   const response = await fetch(`${API_URL}/user/${telegramId}`);
