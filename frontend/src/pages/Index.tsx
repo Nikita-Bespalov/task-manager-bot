@@ -18,7 +18,15 @@ declare global {
 }
 
 const getTelegramId = (): string => {
-  return window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '7714999378';
+  const id = window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+  
+  // Fallback только для localhost
+  if (!id && window.location.hostname === 'localhost') {
+    console.warn('⚠️  Используется тестовый ID для разработки');
+    return '7714999378'; // Для тестирования локально
+  }
+  
+  return id || '';
 };
 
 const Index = () => {
@@ -28,6 +36,21 @@ const Index = () => {
   const [filter, setFilter] = useState<TaskFilter>('all');
   const [loading, setLoading] = useState(true);
   const telegramId = getTelegramId();
+
+  // Проверка что приложение открыто в Telegram
+  if (!telegramId) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">⚠️ Ошибка</h1>
+          <p>Это приложение работает только в Telegram Mini App</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Откройте бота в Telegram и нажмите кнопку меню
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const loadTasks = useCallback(async (currentUser: User) => {
     try {
@@ -65,7 +88,7 @@ const Index = () => {
       if (user) loadTasks(user);
     }, 10000);
     return () => clearInterval(interval);
-  }, [telegramId]);
+  }, [telegramId, loadTasks]);
 
   const handleTakeInProgress = async (taskId: string) => {
     try {
