@@ -13,8 +13,13 @@ const resolveApiUrl = () => {
 };
 
 const API_URL = resolveApiUrl();
+// Hardcoded for production debugging
+const API_URL = 'https://task-manager-bot-cayt.onrender.com/api';
+
+console.log('🔗 API URL:', API_URL);
 
 export async function fetchUser(telegramId: string): Promise<User> {
+  console.log('Fetching user:', `${API_URL}/user/${telegramId}`);
   const response = await fetch(`${API_URL}/user/${telegramId}`);
   if (!response.ok) throw new Error('Пользователь не найден');
   return response.json();
@@ -22,17 +27,18 @@ export async function fetchUser(telegramId: string): Promise<User> {
 
 export async function fetchTasks(telegramId: string, isAdmin: boolean): Promise<Task[]> {
   const url = isAdmin ? `${API_URL}/tasks` : `${API_URL}/tasks/${telegramId}`;
+  console.log('Fetching tasks:', url);
   const response = await fetch(url);
   if (!response.ok) throw new Error('Ошибка загрузки задач');
   return response.json();
 }
 
 export async function fetchAllUsers(): Promise<User[]> {
+  console.log('Fetching users:', `${API_URL}/users`);
   const response = await fetch(`${API_URL}/users`);
   if (!response.ok) throw new Error('Ошибка загрузки пользователей');
   return response.json();
 }
-
 export async function createTask(data: {
   title: string;
   description: string;

@@ -13,12 +13,17 @@ const allowedOrigins = [
   'http://localhost:8080',
   'https://localhost:8080',
   'https://task-manager-frontend.onrender.com',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:8080',
+  'https://task-manager-frontend-1rbo.onrender.com',
   /\.onrender\.com$/
 ];
 
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
+    // Разрешаем запросы без origin (например, мобильные приложения, Postman)
     if (!origin) {
       return callback(null, true);
     }
@@ -33,10 +38,12 @@ app.use(cors({
       return callback(null, true);
     }
 
+    console.log(`❌ CORS blocked for origin: ${origin}`);
     return callback(new Error(`CORS blocked for origin: ${origin}`));
   },
   credentials: true
 }));
+
 app.use(express.json());
 
 // Routes
@@ -60,4 +67,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Сервер запущен на порту ${PORT}`);
   console.log(`📡 API доступен на http://localhost:${PORT}`);
+});
 });
