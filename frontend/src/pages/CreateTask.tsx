@@ -3,18 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ScreenHeader from '@/components/ScreenHeader';
 import { createTask as apiCreateTask, fetchAllUsers } from '@/lib/api';
+import { getTelegramId } from '@/lib/telegram';
 import { User } from '@/lib/types';
 import { toast } from 'sonner';
-
-declare global {
-  interface Window {
-    Telegram?: { WebApp: any };
-  }
-}
-
-const getTelegramId = (): string => {
-  return window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '7714999378';
-};
 
 export default function CreateTask() {
   const navigate = useNavigate();
@@ -34,11 +25,16 @@ export default function CreateTask() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const telegramId = getTelegramId();
+      if (!telegramId) {
+        throw new Error('Telegram ID не найден. Откройте приложение в Telegram или задайте VITE_DEV_TELEGRAM_ID.');
+      }
+
       await apiCreateTask({
         title,
         description,
         assigned_to_id: assignee,
-        assigned_by_id: getTelegramId(),
+        assigned_by_id: telegramId,
         priority,
         deadline,
       });

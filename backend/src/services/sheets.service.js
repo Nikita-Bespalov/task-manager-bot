@@ -2,6 +2,17 @@ const { google } = require('googleapis');
 const path = require('path');
 require('dotenv').config();
 
+const ADMIN_TELEGRAM_ID = process.env.ADMIN_TELEGRAM_ID;
+
+function normalizeRole(telegramId, rawRole) {
+  if (ADMIN_TELEGRAM_ID) {
+    return String(telegramId) === String(ADMIN_TELEGRAM_ID) ? 'admin' : 'employee';
+  }
+
+  const role = String(rawRole || '').trim().toLowerCase();
+  return role === 'admin' ? 'admin' : 'employee';
+}
+
 class SheetsService {
   constructor() {
   let credentials;
@@ -108,7 +119,7 @@ class SheetsService {
       telegram_id: user[0],
       username: user[1],
       full_name: user[2],
-      role: user[3],
+      role: normalizeRole(user[0], user[3]),
       join_date: user[4],
       active: user[5],
     };
@@ -230,7 +241,7 @@ class SheetsService {
       telegram_id: row[0],
       username: row[1],
       full_name: row[2],
-      role: row[3],
+      role: normalizeRole(row[0], row[3]),
       join_date: row[4],
       active: row[5],
     }));
