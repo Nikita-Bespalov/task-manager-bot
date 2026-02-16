@@ -18,7 +18,7 @@ declare global {
 }
 
 const getTelegramId = (): string => {
-  return window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString();
+  return window.Telegram?.WebApp?.initDataUnsafe?.user?.id?.toString() || '';
 };
 
 const Index = () => {
